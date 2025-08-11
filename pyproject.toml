@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "api-conversion"
+version = "0.1.0"
+description = "Multi-Channel AI API Unified Conversion Proxy System"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Api-Conversion Maintainers" }]
+keywords = ["fastapi", "proxy", "ai", "openai", "anthropic", "gemini"]
+
+[project.urls]
+Homepage = "https://github.com/chinrain/Api-Conversion"
+
+[tool.black]
+target-version = ["py39"]
+line-length = 88
+include = "\\.pyi?$"
+exclude = "/(\\.git|\\.venv|build|dist)/"
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "."]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203,W503"
+exclude = ".git,__pycache__,.venv,build,dist"
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unused_configs = true
+
