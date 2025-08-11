@@ -203,8 +203,9 @@ async def list_channels(_: bool = Depends(get_session_user)):
             ]
         }
     except Exception as e:
-        logger.error(f"Failed to list channels: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from src.utils.security import safe_log_data
+        logger.error(f"Failed to list channels: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Failed to list channels")
 
 
 @router.get("/channels/{channel_id}")
@@ -314,8 +315,9 @@ async def test_channel(channel_id: str, _: bool = Depends(get_session_user)):
     except ChannelNotFoundError:
         raise HTTPException(status_code=404, detail="Channel not found")
     except Exception as e:
-        logger.error(f"Failed to test channel: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from src.utils.security import safe_log_data
+        logger.error(f"Failed to test channel: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Failed to test channel")
 
 
 # 格式转换API
@@ -404,8 +406,9 @@ async def handle_conversion_request(request: Request, target_format: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Conversion request failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Conversion request failed: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/conversion/formats")
@@ -430,8 +433,9 @@ async def get_conversion_statistics():
             }
         }
     except Exception as e:
-        logger.error(f"Failed to get statistics: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from src.utils.security import safe_log_data
+        logger.error(f"Failed to get statistics: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Failed to get statistics")
 
 
 class ProxyTestRequest(BaseModel):

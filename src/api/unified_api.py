@@ -75,7 +75,8 @@ async def fetch_raw_models_from_channel(channel: ChannelInfo) -> List[Dict[str, 
         # 重新抛出HTTP异常
         raise
     except Exception as e:
-        logger.error(f"Failed to fetch raw models from {channel.provider}: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Failed to fetch raw models from {channel.provider}: {safe_log_data(str(e))}")
         logger.exception("Full traceback:")  # 记录完整堆栈跟踪
         # 返回空列表而不是默认模型
         logger.warning(f"Returning empty model list due to API failure")
@@ -446,10 +447,10 @@ async def forward_request_to_channel(
                     logger.error(f"Streaming request timeout after {channel.timeout} seconds")
                     raise TimeoutError(f"Streaming request timeout after {channel.timeout} seconds")
                 except Exception as e:
-                    error_msg = f"Streaming request failed: {str(e) if e else 'Unknown error'}"
-                    logger.error(error_msg)
+                    from src.utils.security import safe_log_data
+                    logger.error(f"Streaming request failed: {safe_log_data(str(e))}")
                     logger.exception("Streaming request exception details:")
-                    raise APIError(error_msg)
+                    raise APIError("Streaming request failed")
             
             return stream_generator()
         else:
@@ -863,10 +864,11 @@ async def list_models_unified(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unified models list failed: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Unified models list failed: {safe_log_data(str(e))}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Models list failed")
 
 
 # Gemini格式：列出可用模型  
@@ -895,10 +897,11 @@ async def list_gemini_models(api_key: str = Depends(extract_gemini_api_key)):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Gemini format list models failed: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Gemini format list models failed: {safe_log_data(str(e))}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Models list failed")
 
 
 # 统一端点：基于路径自动识别格式，基于key识别目标渠道
@@ -1020,8 +1023,9 @@ async def unified_gemini_count_tokens_endpoint(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Gemini countTokens request failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Gemini countTokens request failed: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 async def handle_unified_request(request, api_key: str, source_format: str):
@@ -1099,8 +1103,9 @@ async def handle_unified_request(request, api_key: str, source_format: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Unified {source_format} API request failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Unified {source_format} API request failed: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 async def handle_gemini_count_tokens(channel: ChannelInfo, model_id: str, request_data: dict):
@@ -1224,8 +1229,9 @@ async def handle_openai_count_tokens_for_gemini(channel: ChannelInfo, model_id: 
         )
     
     except Exception as e:
-        logger.error(f"OpenAI countTokens conversion failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Token counting failed: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"OpenAI countTokens conversion failed: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Token counting failed")
 
 
 async def handle_anthropic_count_tokens_for_gemini(channel: ChannelInfo, model_id: str, request_data: dict):
@@ -1265,8 +1271,9 @@ async def handle_anthropic_count_tokens_for_gemini(channel: ChannelInfo, model_i
         )
     
     except Exception as e:
-        logger.error(f"Anthropic countTokens conversion failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Token counting failed: {e}")
+        from src.utils.security import safe_log_data
+        logger.error(f"Anthropic countTokens conversion failed: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="Token counting failed")
 
 
 # 健康检查端点

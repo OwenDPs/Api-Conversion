@@ -321,7 +321,9 @@ class BaseCapabilityDetector(ABC):
         except httpx.ConnectError:
             raise NetworkError(f"Failed to connect to {url}")
         except Exception as e:
-            raise NetworkError(f"Network error: {e}")
+            from src.utils.security import safe_log_data
+            self.logger.error(f"Network error: {safe_log_data(str(e))}")
+            raise NetworkError("Network error occurred")
     
     def _check_authentication_error(self, status_code: int, response_data: Dict[str, Any]) -> None:
         """检查认证错误"""

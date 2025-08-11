@@ -125,7 +125,11 @@ class DatabaseManager:
                 connect_params.pop('host', None)
                 connect_params.pop('port', None)
             
-            conn = pymysql.connect(**connect_params)
+            try:
+                conn = pymysql.connect(**connect_params)
+            except Exception as e:
+                logger.error("Failed to connect to MySQL database")
+                raise ConnectionError("Database connection failed")
         else:
             raise ValueError(f"Unsupported database type: {self.db_type}")
         

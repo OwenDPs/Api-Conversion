@@ -994,8 +994,9 @@ async def fetch_models(request: dict):
         return {"models": models}
         
     except Exception as e:
-        logger.error(f"模型获取失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        from src.utils.security import safe_log_data
+        logger.error(f"模型获取失败: {safe_log_data(str(e))}")
+        raise HTTPException(status_code=500, detail="模型获取失败")
 
 
 async def run_detection(task_id: str, config: ChannelConfig, selected_capabilities: Optional[List[str]], target_model: str):

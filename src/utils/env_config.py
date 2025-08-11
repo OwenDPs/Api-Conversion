@@ -170,6 +170,8 @@ class EnvConfig:
         # 验证必需配置
         if not self.admin_password:
             errors.append("ADMIN_PASSWORD cannot be empty")
+        elif self.admin_password == "admin123":
+            errors.append("ADMIN_PASSWORD must be changed from default value 'admin123' for security")
 
         # 验证数据库配置
         if self.database_type not in ["sqlite", "mysql"]:
