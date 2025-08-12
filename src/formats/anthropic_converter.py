@@ -295,7 +295,7 @@ class AnthropicConverter(BaseConverter):
                     "function": {
                         "name": tool.get("name", ""),
                         "description": tool.get("description", ""),
-                        "parameters": tool.get("input_schema", {})
+                        "parameters": self._clean_json_schema_properties(tool.get("input_schema", {}))
                     }
                 })
             result_data["tools"] = openai_tools
