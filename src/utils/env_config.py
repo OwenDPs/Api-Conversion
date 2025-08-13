@@ -138,6 +138,49 @@ class EnvConfig:
         socket_path = self.get_str("MYSQL_SOCKET", "")
         return socket_path if socket_path else None
 
+    # --------------------------------
+    # PostgreSQL backup (for SQLite redundant write/restore)
+    # --------------------------------
+    @property
+    def pg_backup_enabled(self) -> bool:
+        """Enable redundant backup to PostgreSQL when using SQLite"""
+        return self.get_bool("PG_BACKUP_ENABLED", False)
+
+    @property
+    def pg_backup_uri(self) -> str:
+        """PostgreSQL service URI for backup (e.g., postgres://user:pass@host:5432/dbname)"""
+        return self.get_str("PG_BACKUP_URI", "")
+
+    @property
+    def pg_backup_host(self) -> str:
+        """PostgreSQL host for backup"""
+        return self.get_str("PG_BACKUP_HOST", "")
+
+    @property
+    def pg_backup_port(self) -> int:
+        """PostgreSQL port for backup"""
+        return self.get_int("PG_BACKUP_PORT", 5432)
+
+    @property
+    def pg_backup_user(self) -> str:
+        """PostgreSQL user for backup"""
+        return self.get_str("PG_BACKUP_USER", "")
+
+    @property
+    def pg_backup_password(self) -> str:
+        """PostgreSQL password for backup"""
+        return self.get_str("PG_BACKUP_PASSWORD", "")
+
+    @property
+    def pg_backup_database(self) -> str:
+        """PostgreSQL database name for backup"""
+        return self.get_str("PG_BACKUP_DATABASE", "")
+
+    @property
+    def pg_backup_sslmode(self) -> str:
+        """PostgreSQL SSL mode (disable|require|verify-ca|verify-full)"""
+        return self.get_str("PG_BACKUP_SSLMODE", "require")
+
     # ================================
     # 日志配置
     # ================================
@@ -171,7 +214,7 @@ class EnvConfig:
         if not self.admin_password:
             errors.append("ADMIN_PASSWORD cannot be empty")
         elif self.admin_password == "admin123":
-            print("WARNING: The default admin password is insecure. Please change it via ADMIN_PASSWORD.")
+            errors.append("❌ 使用默认密码非常危险，请配置环境变量：ADMIN_PASSWORD.")
 
         # 验证数据库配置
         if self.database_type not in ["sqlite", "mysql"]:
@@ -184,6 +227,10 @@ class EnvConfig:
                     db_dir.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
                     errors.append(f"Cannot create database directory {db_dir}: {e}")
+            # 当启用PG冗余备份时，要求 ENCRYPTION_KEY 存在
+            if self.pg_backup_enabled:
+                if not os.getenv("ENCRYPTION_KEY"):
+                    errors.append("ENCRYPTION_KEY is required when PG_BACKUP_ENABLED=true for SQLite")
         elif self.database_type == "mysql":
             # 验证MySQL配置
             if not self.mysql_host:
